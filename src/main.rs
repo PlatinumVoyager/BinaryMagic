@@ -159,17 +159,17 @@ impl Arguments
             ];
 
             section_hdr_table.add_row(vec![
-                Cell::new(section_name).fg(Color::DarkGrey).add_attribute(Attribute::Bold),                                     /* SECTION NAME */
-                Cell::new(&section_offset),   /* OFFSET  */
-                Cell::new(&section_hdr_sz),                                  /* HDR_SIZE */
+                Cell::new(section_name).fg(Color::DarkGrey).add_attribute(Attribute::Bold),  /* SECTION NAME */
+                Cell::new(&section_offset),                                                  /* OFFSET  */
+                Cell::new(&section_hdr_sz),                                                  /* HDR_SIZE */
                 
-                match (elf_section_hdr.sh_entsize > 0) as bool               /* ENT_SIZE */
+                match (elf_section_hdr.sh_entsize > 0) as bool                               /* ENT_SIZE */
                 {
                     true => Cell::new(&section_ent_sz),
                     false => Cell::new("")
                 },                                  
 
-                match (elf_section_hdr.sh_entsize > 0) as bool               /* Has Table? */
+                match (elf_section_hdr.sh_entsize > 0) as bool                               /* Has Table? */
                 {
                     true => Cell::new(format!("{CHECK}")).fg(Color::Green).add_attribute(Attribute::Bold),
                     false => Cell::new(format!("{CROSS}")).fg(Color::Red).add_attribute(Attribute::Dim)
@@ -460,10 +460,17 @@ fn parse_args() -> Option<Arguments>
 {
     let args: Vec<String> = env::args().skip(1).collect();
 
+    if args[0].to_string() == String::from("help")
+    {
+        send_help();
+    }
+
     Some(Arguments { 
         file: match (args.len() < 1) as bool 
         { 
             true => {
+                send_help();
+
                 println!("No FILE detected! Using default path: \"{DEFAULT_PATH}\" as entry point!");
                 DEFAULT_PATH.to_string()
             },
@@ -473,4 +480,24 @@ fn parse_args() -> Option<Arguments>
 
         optional_param: match (args.len() >= 2) as bool { true => args[1].clone(), false => "NULL".to_string() }
     })
+}
+
+
+fn send_help() -> ()
+{
+    let help: &str = r##"
+        BINARYMAGIC - v1.0 (ALPHA)
+        ==========================
+    
+        Arguments:
+        ----------
+    
+            --sections      view the section header table of the ELF32/ELF64 binary      
+            --dyn-syms      view the dynamic symbol table of the ELF32/ELF64 binary
+            --dyn-libs      view the dynamic library table of the ELF32/ELF64 binary
+    "##;
+
+    println!("{}", help.unindent());
+
+    std::process::exit(0);
 }
