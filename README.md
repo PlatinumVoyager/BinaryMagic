@@ -5,3 +5,6 @@
 </br>
 
 A bare bones ELF32/ELF64 bit Goblin binary executable parser written in Rust.
+
+## Preview
+![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/942dcec1-5eba-43b4-be17-f5ecc224f76f)
