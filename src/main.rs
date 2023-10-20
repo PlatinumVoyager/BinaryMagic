@@ -1,3 +1,9 @@
+/*
+    2023 The BinaryMagic Authors.
+
+    GNU PL 3.0 (GPL-3.0) - All rights reserved.
+*/
+
 use std::fs;
 use std::env;
 use std::path::Path;
