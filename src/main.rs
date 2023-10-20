@@ -16,13 +16,10 @@ use comfy_table::presets::UTF8_BORDERS_ONLY;
 
 use goblin::Object;
 use goblin::elf::Elf;
-use goblin::elf::Header;
 use goblin::elf::header::*;
 use goblin::strtab::Strtab;
 use goblin::container::Endian;
 use goblin::elf64::header::SIZEOF_IDENT;
-
-type Context = goblin::container::Ctx;
 
 /* Terminal styling options */
 const OMEGA: &str = "\u{03a9}";
@@ -38,11 +35,11 @@ const MULTI_CALLER: bool = !SINGULAR_CALLER;
 
 enum ElfObjectType
 {
-    ET_NONE,
-    ET_REL,
-    ET_EXEC,
-    ET_DYN,
-    ET_CORE
+    EtNone,
+    EtRel,
+    EtExec,
+    EtDyn,
+    EtCore
 }
 
 impl ElfObjectType
@@ -51,11 +48,11 @@ impl ElfObjectType
     {
         match *self
         {
-            ElfObjectType::ET_NONE => return String::from("ET_NONE (No file type)"),
-            ElfObjectType::ET_REL => return String::from("ET_REL (Relocatable file)"),
-            ElfObjectType::ET_EXEC => return String::from("ET_EXEC (Executable file)"),
-            ElfObjectType::ET_DYN => return String::from("ET_DYN (Shared object file)"),
-            ElfObjectType::ET_CORE => return String::from("ET_CORE (Core file)")
+            ElfObjectType::EtNone => return String::from("ET_NONE (No file type)"),
+            ElfObjectType::EtRel => return String::from("ET_REL (Relocatable file)"),
+            ElfObjectType::EtExec => return String::from("ET_EXEC (Executable file)"),
+            ElfObjectType::EtDyn => return String::from("ET_DYN (Shared object file)"),
+            ElfObjectType::EtCore => return String::from("ET_CORE (Core file)")
         };
     }
 }
@@ -118,16 +115,14 @@ impl Arguments
         }
         else 
         {
-            return todo!()
+            eprintln!("Object file is not supported at the moment!");
+            std::process::exit(-1);
         }
     }
 
 
     fn parse_header_sections(self: &Self, elf_obj: &Elf, is_caller_singular: bool) -> ()
     {
-        let elf_ctx: Context = Context::default();
-        let elf_sz: usize = Header::size(elf_ctx);
-
         /* Section header string table */
         let elf_shdr_tab: &Strtab<'_> = &elf_obj.shdr_strtab;
         println!("\nSection Headers =>");
@@ -388,13 +383,13 @@ fn return_elf_etype(elf: &Elf) -> String
             
     let etype_variant: ElfObjectType = match hdr_etype as u16
     {
-        0 => ElfObjectType::ET_NONE,
-        1 => ElfObjectType::ET_REL,
-        2 => ElfObjectType::ET_EXEC,
-        3 => ElfObjectType::ET_DYN,
-        4 => ElfObjectType::ET_CORE,
+        0 => ElfObjectType::EtNone,
+        1 => ElfObjectType::EtRel,
+        2 => ElfObjectType::EtExec,
+        3 => ElfObjectType::EtDyn,
+        4 => ElfObjectType::EtCore,
 
-        _ => ElfObjectType::ET_NONE
+        _ => ElfObjectType::EtNone
     };
 
     etype_variant.get_type()
