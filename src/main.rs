@@ -28,7 +28,6 @@ const CROSS: &str = "\u{2717}";
 
 const PARAM_DATA_LIMIT: usize = 1;
 const ELF_MAGIC_LEN: usize = 4;
-const DEFAULT_PATH: &str = "/usr/bin/ls";
 
 const SINGULAR_CALLER: bool = true;
 const MULTI_CALLER: bool = !SINGULAR_CALLER;
@@ -461,19 +460,12 @@ fn parse_args() -> Option<Arguments>
 {
     let args: Vec<String> = env::args().skip(1).collect();
 
-    if args[0].to_string() == String::from("help")
-    {
-        send_help();
-    }
-
     Some(Arguments { 
         file: match (args.len() < 1) as bool 
         { 
             true => {
                 send_help();
-
-                println!("No FILE detected! Using default path: \"{DEFAULT_PATH}\" as entry point!");
-                DEFAULT_PATH.to_string()
+                "NULL".to_string()
             },
 
             false => args[0].clone()
@@ -492,7 +484,8 @@ fn send_help() -> ()
     
         Arguments:
         ----------
-    
+
+            --help/-h       show this informational text and exit
             --sections      view the section header table of the ELF32/ELF64 binary      
             --dyn-syms      view the dynamic symbol table of the ELF32/ELF64 binary
             --dyn-libs      view the dynamic library table of the ELF32/ELF64 binary
