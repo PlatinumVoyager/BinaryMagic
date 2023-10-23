@@ -14,7 +14,8 @@ To setup **BinaryMagic** invoke the following command `git clone https://github.
 ## Information
 By default if no arguments are supplied to **BinaryMagic** it will display a blob of text containing usage information.
 
-![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/be0feb54-80ca-40a4-a547-ef213cd3f9d9)
+![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/ada2dd4c-383e-400d-898a-3dd2648c17ec)
+
 
 ## Preview
 Execute: `binarymagic /usr/bin/ls --sections`
