@@ -12,6 +12,7 @@ To setup **BinaryMagic** invoke the following command:
 ```git clone https://github.com/PlatinumVoyager/BinaryMagic.git ; cd BinaryMagic ; cargo build && sudo cp target/debug/binarymagic /usr/bin && rm -r target && cd $HOME ; binarymagic```
 
 ## Usage
+Basic use example: `binarymagic <TARGET> <ARGUMENTS>`
 
 ## Information
 By default if no arguments are supplied to **BinaryMagic** it will display a blob of text containing usage information.
