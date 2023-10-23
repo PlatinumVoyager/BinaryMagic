@@ -600,7 +600,7 @@ fn parse_args() -> Option<Arguments>
 fn send_help() -> ()
 {
     let help: &str = r##"
-        BINARYMAGIC - v1.0 (ALPHA)
+        BINARYMAGIC - v1.1 (ALPHA)
         ==========================
     
         Arguments:
