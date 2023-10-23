@@ -606,7 +606,6 @@ fn send_help() -> ()
         Arguments:
         ----------
 
-            --help/-h       show this informational text and exit
             --sections      view the section header table of the ELF32/ELF64 binary      
             --dyn-syms      view the dynamic symbol table of the ELF32/ELF64 binary
             --dyn-libs      view the dynamic library table of the ELF32/ELF64 binary
