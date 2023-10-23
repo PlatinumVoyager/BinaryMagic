@@ -12,4 +12,4 @@ To use **BinaryMagic** you must invoke it with `cargo run <TARGET> <ARGUMENTS>`
 ![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/be0feb54-80ca-40a4-a547-ef213cd3f9d9)
 
 ## Preview
-![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/942dcec1-5eba-43b4-be17-f5ecc224f76f)
+![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/adc031c3-b191-454d-a37e-f1c0d1813af0)
