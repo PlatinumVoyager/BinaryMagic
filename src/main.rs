@@ -317,9 +317,13 @@ impl Arguments
         
         let mut c: i32 = 0;
 
-        for (_, &v) in elf_dymsym_vec.iter().enumerate()
+        println!("Dynamic Symbols Table =>\n");
+
+        for (mut i, &v) in elf_dymsym_vec.iter().enumerate()
         {
-            println!("\t {v}");
+            i += 1;
+
+            println!("\t {i}. {v}");
             c += 1;
         }
 
