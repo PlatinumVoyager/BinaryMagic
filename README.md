@@ -17,7 +17,7 @@ By default if no arguments are supplied to **BinaryMagic** it will display a blo
 ![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/be0feb54-80ca-40a4-a547-ef213cd3f9d9)
 
 ## Preview
-Execute: `./target/debug/binarymagic /usr/bin/ls --sections`
+Execute: `binarymagic /usr/bin/ls --sections`
 <br/>
 
 ![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/adc031c3-b191-454d-a37e-f1c0d1813af0)
