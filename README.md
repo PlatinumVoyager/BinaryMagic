@@ -7,7 +7,9 @@
 A bare bones ELF32/ELF64 bit Goblin binary executable parser written in Rust.
 
 ## Setup
-To setup **BinaryMagic** invoke the following command `git clone https://github.com/PlatinumVoyager/BinaryMagic.git ; cd BinaryMagic ; cargo build && sudo cp target/debug/binarymagic /usr/bin && rm -r target && cd $HOME ; binarymagic`
+To setup **BinaryMagic** invoke the following command:
+
+```git clone https://github.com/PlatinumVoyager/BinaryMagic.git ; cd BinaryMagic ; cargo build && sudo cp target/debug/binarymagic /usr/bin && rm -r target && cd $HOME ; binarymagic```
 
 ## Usage
 
