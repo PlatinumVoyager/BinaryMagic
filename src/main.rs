@@ -21,6 +21,15 @@ use goblin::strtab::Strtab;
 use goblin::container::Endian;
 use goblin::elf64::header::SIZEOF_IDENT;
 
+/* Import all pre-defined elf section header flag attribute values */
+use goblin::elf64::section_header::*;
+
+/* Custom section header flags */
+const SHF_WRITE_ALLOC: u32 = SHF_WRITE | SHF_ALLOC;
+const SHF_ASM_INST_ALLOC: u32 = SHF_ALLOC | SHF_EXECINSTR;
+
+const SHF_UNDEFINED: u32 = 0; const SHF_UNDEFINED_STR: &str = "SHF_UNDEFINED";
+
 /* Terminal styling options */
 const OMEGA: &str = "\u{03a9}";
 const CHECK: &str = "\u{2713}";
@@ -31,6 +40,61 @@ const ELF_MAGIC_LEN: usize = 4;
 
 const SINGULAR_CALLER: bool = true;
 const MULTI_CALLER: bool = !SINGULAR_CALLER;
+
+enum ElfSectionType
+{
+    ShtNull,            /* 0 = marks the section header as inactive */
+    ShtProgBits,        /* 1 = holds information defined by the program, whose format and meaning are determined solely by the program */
+    ShtSymTab,          /* 2 = hold a symbol table */
+    ShtStrTab,          /* 3 = section holds a string table. An object file may have multiple string table sections */
+    ShtRela,            /* 4 = section holds relocation entries with explicit addends, such as type Elf32_Rela for the 32-bit class of object files or type Elf64_Rela for the 64-bit class of object files */
+    ShtHash,            /* 5 = section holds a symbol hash table. Currently, an object file may have only one hash table*/
+    ShtDynamic,         /* 6 = section holds information for dynamic linking. Currently, an object file may have only one dynamic section */
+    ShtNote,            /* 7 = section holds information that marks the file in some way */
+    ShtNoBits,          /* 8 = section of this type occupies no space in the file but otherwise resembles ShtProgBits */
+    ShtRel,             /* 9 = section holds relocation entries without explicit addends. An object file may have multiple relocation sections */
+    ShtShLib,           /* 10 = section type is reserved but has unspecified semantics */
+    ShtDynSym,          /* 11 = hold a symbol table */
+    ShtInitArray,       /* 14 = section contains an array of pointers to initialization functions */
+    ShtFiniArray,       /* 15 = section contains an array of pointers to termination functions */
+    ShtPreInitArray,    /* 16 = section contains an array of pointers to functions that are invoked before all other initialization functions */
+    ShtGroup,           /* 17 = section defines a section group. A section group is a set of sections that are related and that must be treated specially by the linker */
+    ShtSymTabShndx,    /* 18 = section is associated with a section of type ShtSymTab and is required if any of the section header indexes referenced by that symbol table contain the escape value SHN_XINDEX */
+
+    // ShtLoos,            /* 0x60000000 = values in this inclusive range are reserved for operating system-specific semantics */
+    // ShtHios,            /* 0x6fffffff = values in this inclusive range are reserved for operating system-specific semantics */
+    // ShtLoProc,          /* 0x70000000 = values in this inclusive range are reserved for processor-specific semantics */
+    // ShtHiProc,          /* 0x7fffffff = values in this inclusive range are reserved for processor-specific semantics */    
+    // ShtLoUser,          /* 0x80000000 = this value specifies the lower bound of the range of indexes reserved for application programs */
+    // ShtHiUser           /* 0xffffffff = this value specifies the upper bound of the range of indexes reserved for application programs */
+}
+
+impl ElfSectionType 
+{
+    fn get_type(self: &Self) -> String
+    {
+        match *self
+        {
+            ElfSectionType::ShtNull => "SHT_NULL".to_string(),
+            ElfSectionType::ShtProgBits => "SHT_PROGBITS".to_string(),
+            ElfSectionType::ShtSymTab => "SHT_SYMTAB".to_string(),
+            ElfSectionType::ShtStrTab => "SHT_STRTAB".to_string(),
+            ElfSectionType::ShtRela => "SHT_RELA".to_string(),
+            ElfSectionType::ShtHash => "SHT_HASH".to_string(),
+            ElfSectionType::ShtDynamic => "SHT_DYNAMIC".to_string(),
+            ElfSectionType::ShtNote => "SHT_NOTE".to_string(),
+            ElfSectionType::ShtNoBits => "SHT_NOBITS".to_string(),
+            ElfSectionType::ShtRel => "SHT_REL".to_string(),
+            ElfSectionType::ShtShLib => "SHT_SHLIB".to_string(),
+            ElfSectionType::ShtDynSym => "SHT_DYNSYM".to_string(),
+            ElfSectionType::ShtInitArray => "SHT_INIT_ARRAY".to_string(),
+            ElfSectionType::ShtFiniArray => "SHT_FINI_ARRAY".to_string(),
+            ElfSectionType::ShtPreInitArray => "SHT_PREINIT_ARRAY".to_string(),
+            ElfSectionType::ShtGroup => "SHT_GROUP".to_string(),
+            ElfSectionType::ShtSymTabShndx => "SHT_SYMTAB_SHNDX".to_string(),
+        }
+    }
+}
 
 enum ElfObjectType
 {
@@ -54,12 +118,6 @@ impl ElfObjectType
             ElfObjectType::EtCore => return String::from("ET_CORE (Core file)")
         };
     }
-}
-
-struct Arguments 
-{
-    file: String,
-    optional_param: String
 }
 
 enum ProgramArgumentMethod
@@ -86,6 +144,13 @@ impl ProgramArgumentMethod
             }
         }
     }
+}
+
+/* CLI options */
+struct Arguments 
+{
+    file: String,
+    optional_param: String
 }
 
 impl Arguments
@@ -132,7 +197,9 @@ impl Arguments
             .set_content_arrangement(ContentArrangement::Dynamic)
             .set_header(vec![
                 /* Formatting options supplemented */
-                Cell::new(format!("Symbol Name \u{00a7}")).fg(Color::Green).add_attribute(Attribute::Bold), 
+                Cell::new("Symbol Name \u{00a7}").fg(Color::Green).add_attribute(Attribute::Bold), 
+                Cell::new("Flags").fg(Color::Green).add_attribute(Attribute::Bold),
+                Cell::new("Header Type").fg(Color::Green).add_attribute(Attribute::Bold),
                 Cell::new(format!("Offset {OMEGA}")).fg(Color::Green).add_attribute(Attribute::Bold),
 
                 /* No formatting options */
@@ -146,12 +213,36 @@ impl Arguments
             let section_name: &str = elf_shdr_tab.get_at(elf_section_hdr.sh_name).unwrap_or("Not defined");
             let section_offset: String = format!("{}", elf_section_hdr.sh_offset);
 
+            /* ELF section header type */
+            let elf_sh_type: ElfSectionType = match elf_section_hdr.sh_type as u32 
+            {
+                SHT_NULL => ElfSectionType::ShtNull,
+                SHT_PROGBITS => ElfSectionType::ShtProgBits,
+                SHT_SYMTAB => ElfSectionType::ShtSymTab,
+                SHT_STRTAB => ElfSectionType::ShtStrTab,
+                SHT_RELA => ElfSectionType::ShtRela,
+                SHT_HASH => ElfSectionType::ShtHash,
+                SHT_DYNAMIC => ElfSectionType::ShtDynamic,
+                SHT_NOTE => ElfSectionType::ShtNote,
+                SHT_NOBITS => ElfSectionType::ShtNoBits,
+                SHT_REL => ElfSectionType::ShtRel,
+                SHT_SHLIB => ElfSectionType::ShtShLib,
+                SHT_DYNSYM => ElfSectionType::ShtDynSym,
+                SHT_INIT_ARRAY => ElfSectionType::ShtInitArray,
+                SHT_FINI_ARRAY => ElfSectionType::ShtFiniArray,
+                SHT_PREINIT_ARRAY => ElfSectionType::ShtPreInitArray,
+                SHT_GROUP => ElfSectionType::ShtGroup,
+                SHT_SYMTAB_SHNDX => ElfSectionType::ShtSymTabShndx,
+
+                _  => ElfSectionType::ShtNull
+            };
+
             let section_hdr_sz: String = format!("{}", match (elf_section_hdr.sh_size >= 1024 as u64) as bool {
                 true => format!("{} Kb ({:.2} bytes)", ((&elf_section_hdr.sh_size / 1024) as f64), elf_section_hdr.sh_size),
                 false => format!("{} bytes", &elf_section_hdr.sh_size)
             });
 
-            let section_ent_sz: String = format!("{} bytes", elf_section_hdr.sh_entsize);
+            let section_ent_sz: String = format!("{} bytes", elf_section_hdr.sh_entsize); 
 
             let _attributes: Vec<Attribute> = vec![
                 // Attribute::Bold,
@@ -160,6 +251,36 @@ impl Arguments
 
             section_hdr_table.add_row(vec![
                 Cell::new(section_name).fg(Color::DarkGrey).add_attribute(Attribute::Bold),  /* SECTION NAME */
+                Cell::new(format!("{}", 
+                    match elf_section_hdr.sh_flags as u32
+                    {
+                        SHF_UNDEFINED => SHF_UNDEFINED_STR,
+
+                        /* handle write/allocation primary flags */
+                        SHF_WRITE => "SHF_WRITE",
+                        SHF_ALLOC => "SHF_ALLOC",
+                        SHF_WRITE_ALLOC => "SHF_WRITE & SHF_ALLOC",
+
+                        /* assembly instructions (intel/at&t)? */
+                        SHF_ASM_INST_ALLOC => "SHF_ASM_OPCODE",
+
+                        SHF_EXECINSTR => "SHF_EXECINSTR",
+                        SHF_MERGE => "SHF_MERGE",
+                        SHF_STRINGS => "SHF_STRINGS",
+                        SHF_INFO_LINK => "SHF_INFO_LINK",
+                        SHF_LINK_ORDER => "SHF_LINK_ORDER",
+                        SHF_OS_NONCONFORMING => "SHF_OS_NON_CONFORMING",
+                        SHF_GROUP => "SHF_GROUP",
+                        SHF_TLS => "SHF_TLS",
+                        SHF_MASKOS => "SHF_MASKOS",
+                        SHF_MASKPROC => "SHF_MASKPROC",
+                        
+                        /* lazy method to handle bogus data */
+                        _ => SHF_UNDEFINED_STR
+                    }
+                )).fg(Color::Yellow),
+
+                Cell::new(&elf_sh_type.get_type()).fg(Color::DarkGreen).add_attribute(Attribute::Italic), 
                 Cell::new(&section_offset),                                                  /* OFFSET  */
                 Cell::new(&section_hdr_sz),                                                  /* HDR_SIZE */
                 
