@@ -4,6 +4,10 @@
 </br>
 </br>
 
+[![PlatinumVoyager - BinaryMagic](https://img.shields.io/static/v1?label=PlatinumVoyager&message=BinaryMagic&color=blue&logo=github)](https://github.com/PlatinumVoyager/BinaryMagic "Go to GitHub repo")
+[![stars - BinaryMagic](https://img.shields.io/github/stars/PlatinumVoyager/BinaryMagic?style=social)](https://github.com/PlatinumVoyager/BinaryMagic)
+[![forks - BinaryMagic](https://img.shields.io/github/forks/PlatinumVoyager/BinaryMagic?style=social)](https://github.com/PlatinumVoyager/BinaryMagic)
+
 A bare bones ELF32/ELF64 bit Goblin binary executable parser written in Rust.
 
 ## Setup
