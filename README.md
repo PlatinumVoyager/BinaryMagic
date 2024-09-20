@@ -30,4 +30,4 @@ Execute: `binarymagic /usr/bin/ls --sections`
 
 ![image](https://github.com/PlatinumVoyager/BinaryMagic/assets/116006542/adc031c3-b191-454d-a37e-f1c0d1813af0)
 
-_CORRECTION_: Abbreviations for bytes within the context of the displayed image above is incorrect. Integral values should have been divided by 8 to obtain the correct values. As the current display is set to the basis of bits, not bytes. It should be listed as Kb (kilo bits), Mb (Mega bits), etc. Not as KB (Kilo Bytes) = "bytes" (Ex: 2 Kb (2952 bytes) => 2 Kb (2952 bits) || 2 Kb ([2952 / 8] bytes))
+_CORRECTION_: Abbreviations for bytes within the context of the displayed image above is incorrect. Integral values should have been divided by 8 to obtain the correct values. As the current display is set to the basis of bits, not bytes. It should be listed as Kb (kilo bits), Mb (Mega bits), etc. Not as KB (Kilo Bytes) = "bytes" (Ex: 2 Kb (2952 bytes) => 2 Kb (2952 bits) || 2 Kb ([2952 * 8 / 1024] bytes))
